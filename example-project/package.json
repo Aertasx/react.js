@@ -1,0 +1,28 @@
+{
+  "name": "example-project",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.2.6",
+    "@reduxjs/toolkit": "^2.0.1",
+    "antd": "^5.12.5",
+    "axios": "^1.6.2",
+    "classnames": "^2.5.1",
+    "next": "14.0.4",
+    "react": "^18",
+    "react-cookie": "^6.1.1",
+    "react-dom": "^18",
+    "react-highlight-words": "^0.20.0",
+    "react-redux": "^9.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4"
+  }
+}
