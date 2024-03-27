@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import NewProductForm from "../../../components/admin/products/NewProductForm";
 // import { useEffect } from "react";
 import axios from "axios";
+import { openNotification } from "../../../components/admin/ui/Notification";
+import { BACK_BASE_URL } from "../../../config/urlConfig";
 // import dynamic from "next/dynamic";
 
 // const NewProductForm = dynamic(
@@ -37,14 +39,23 @@ const NewProductPage = (props) => {
       };
 
       const response = await axios.post(
-        "http://localhost:3500/api/admin/postProduct",
+        BACK_BASE_URL + "api/admin/products/create",
         enteredProductData,
         axiosConfig
       );
 
       if (response.status === 200 && response.data.status === "success") {
-        // return response.data.text;
-        router.push("/admin/products/edit-product");
+        openNotification(
+          "success",
+          "Başarılı",
+          "Ürün eklendi.",
+          1.5,
+          () => {
+            setTimeout(() => {
+              router.push("/admin/products/edit-product");
+            }, 500);
+          }
+        );
       }
     } catch (error) {
       // if (error.response.status === 401) {
@@ -70,7 +81,7 @@ const NewProductPage = (props) => {
 export async function getStaticProps() {
   try {
     const response = await axios.get(
-      "http://localhost:3500/api/admin/categories"
+      BACK_BASE_URL + "api/admin/categories"
     ); // Örnek bir endpoint URL'si
 
     if (response.status === 200 && response.data.status === "success") {
@@ -79,7 +90,7 @@ export async function getStaticProps() {
         props: {
           categories,
         },
-        revalidate: 20, // kaç saniyede bir yeni datayı dahil etsin.
+        revalidate: 1, // kaç saniyede bir yeni datayı dahil etsin.
       };
     } else {
       categories = { id: 0, name: "Kategori bulunamadı" };
@@ -87,7 +98,7 @@ export async function getStaticProps() {
         props: {
           categories,
         },
-        revalidate: 20, // kaç saniyede bir yeni datayı dahil etsin.
+        revalidate: 1, // kaç saniyede bir yeni datayı dahil etsin.
       };
     }
     

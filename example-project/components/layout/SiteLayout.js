@@ -17,8 +17,8 @@ import axios from "axios";
 import { Cookies } from "react-cookie";
 import { authActions } from "../../store/auth";
 import checkAuth from "../utils/checkAuth";
-import MainNavigation from "./MainNavigation";
 import classes from "./SiteLayout.module.css";
+import { BACK_BASE_URL } from "../../config/urlConfig";
 
 const { Header, Sider, Content, Footer } = Layout;
 
@@ -52,7 +52,7 @@ function SiteLayout(props) {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  const { isAuthCheckedForInit, isAuth } = checkAuth(); // Auth kontrolü ve durumunu alıyoruz
+  const { isAuthCheckedForInit, isAuth } = checkAuth(BACK_BASE_URL); // Auth kontrolü ve durumunu alıyoruz
   // setIsAuthCheckedForInitVar(isAuthCheckedForInit);
   // setIsAuthForInitVar(isAuth);
 
@@ -103,7 +103,7 @@ function SiteLayout(props) {
       };
 
       const response = await axios.get(
-        "http://localhost:3500/api/account/check-auth",
+        BACK_BASE_URL + "api/account/check-auth",
         axiosConfig
       );
       console.log("checkAuth çalıştı 2");
@@ -127,16 +127,17 @@ function SiteLayout(props) {
   const logoutHandler = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:3500/api/account/logout",
+        BACK_BASE_URL + "api/account/logout",
         {
           withCredentials: true,
         }
       );
       if (response.status === 200 && response.data.status === "success") {
-        cookies.remove("checkToken");
-        cookies.remove("user");
+        cookies.remove("checkToken", {path: "/", domain: ".inadayapp.com"});
+        cookies.remove("user", {path: "/", domain: ".inadayapp.com"});
         dispatch(authActions.logout());
         window.location.href = "/";
+        return;
       }
     } catch (error) {
       if (error.response.status === 401) {
@@ -153,363 +154,383 @@ function SiteLayout(props) {
   };
 
   let layout;
-  if (isAuth) {
-    const items = [
-      getItem(
-        <Link
-          href="/admin"
-          onClick={(e) => {
-            e.preventDefault();
-            checkAuthFetch("/admin");
-          }}
-        >
-          Dashboard
-        </Link>,
-        "1",
-        <DesktopOutlined />,
-        "/admin"
-      ),
-      getItem(
-        <Link
-          href="/admin/test"
-          onClick={(e) => {
-            e.preventDefault();
-            checkAuthFetch("/admin/test");
-          }}
-        >
-          Test
-        </Link>,
-        "2",
-        <VideoCameraOutlined />,
-        "/admin/test"
-      ),
-      getItem("Product Management", "sub1", <UserOutlined />, "products", [
-        getItem(
-          <Link
-            href="/admin/products/edit-product"
-            onClick={(e) => {
-              e.preventDefault();
-              checkAuthFetch("/admin/products/edit-product");
-            }}
-          >
-            Edit Product
-          </Link>,
-          "3",
-          "",
-          "/admin/products/edit-product"
-        ),
-        getItem(
-          <Link
-            href="/admin/products/new-product"
-            onClick={(e) => {
-              e.preventDefault();
-              checkAuthFetch("/admin/products/new-product");
-            }}
-          >
-            New Product
-          </Link>,
-          "4",
-          "",
-          "/admin/products/new-product"
-        ),
-      ]),
-      getItem("Category Management", "sub2", <UserOutlined />, "", [
-        getItem(
-          <Link
-            href="/admin/categories/edit-category"
-            onClick={(e) => {
-              e.preventDefault();
-              checkAuthFetch("/admin/categories/edit-category");
-            }}
-          >
-            Edit Product1
-          </Link>,
-          "5",
-          "",
-          "/admin/categories/edit-category"
-        ),
-        getItem(
-          <Link
-            href="/admin/categories/new-category"
-            onClick={(e) => {
-              e.preventDefault();
-              checkAuthFetch("/admin/categories/new-category");
-            }}
-          >
-            New Product1
-          </Link>,
-          "6",
-          "",
-          "/admin/categories/new-category"
-        ),
-      ]),
-      getItem(
-        <Link
-          href="/auth/logout"
-          onClick={(e) => {
-            e.preventDefault();
-            logoutHandler();
-          }}
-        >
-          Logout
-        </Link>,
-        "7",
-        <FileOutlined />
-      ),
-    ];
 
-    // const breadcrumbItems = [
-    //   {
-    //     path: '/admin',
-    //     title: <HomeOutlined />,
-    //   },
-    //   {
-    //     path: '/admin/products/edit-product',
-    //     title: (
-    //       <>
-    //         <UserOutlined />
-    //         <span>Edit Product</span>
-    //       </>
-    //     ),
-    //   },
-    //   {
-    //     title: 'Product',
-    //   },
-    // ];
-
-    // const breadcrumbItemRender = (route, params, items, paths) => {
-    //   items.map((item) => {
-    //     const last = items.indexOf(item) === items.length - 1;
-    //     return last ? <span>{item.title}</span> : <Link href={paths.join('/')}>{item.title}</Link>;
-    //   });
-    // };
-
-    const pathNames = currentPath.split("/").filter((item) => item);
-    console.log(items);
-    const myBreadcrumb = (
-      <Breadcrumb
-        style={{
-          margin: "24px 16px 0px",
-        }}
-        separator=">"
-      >
-        {pathNames.length > 1 ? (
-          <Breadcrumb.Item>
+  // if (isAuth) {
+    // if (currentPath.startsWith("/admin")) {
+      const items = [
+        getItem(
+          <Link
+            href="/admin"
+            onClick={(e) => {
+              e.preventDefault();
+              checkAuthFetch("/admin");
+            }}
+          >
+            Dashboard
+          </Link>,
+          "1",
+          <DesktopOutlined />,
+          "/admin"
+        ),
+        getItem("Product Management", "sub1", <UserOutlined />, "products", [
+          getItem(
             <Link
-              href="/admin"
+              href="/admin/products/edit-product"
               onClick={(e) => {
                 e.preventDefault();
-                checkAuthFetch("/admin");
+                checkAuthFetch("/admin/products/edit-product");
               }}
             >
-              <HomeOutlined />
-            </Link>
-          </Breadcrumb.Item>
-        ) : (
-          <Breadcrumb.Item>
+              Edit Product
+            </Link>,
+            "3",
+            "",
+            "/admin/products/edit-product"
+          ),
+          getItem(
+            <Link
+              href="/admin/products/new-product"
+              onClick={(e) => {
+                e.preventDefault();
+                checkAuthFetch("/admin/products/new-product");
+              }}
+            >
+              New Product
+            </Link>,
+            "4",
+            "",
+            "/admin/products/new-product"
+          ),
+        ]),
+        getItem("Category Management", "sub2", <UserOutlined />, "", [
+          getItem(
+            <Link
+              href="/admin/categories/edit-category"
+              onClick={(e) => {
+                e.preventDefault();
+                checkAuthFetch("/admin/categories/edit-category");
+              }}
+            >
+              Edit Category
+            </Link>,
+            "5",
+            "",
+            "/admin/categories/edit-category"
+          ),
+          getItem(
+            <Link
+              href="/admin/categories/new-category"
+              onClick={(e) => {
+                e.preventDefault();
+                checkAuthFetch("/admin/categories/new-category");
+              }}
+            >
+              New Category
+            </Link>,
+            "6",
+            "",
+            "/admin/categories/new-category"
+          ),
+        ]),
+        getItem(
+          <Link
+            href="/auth/logout"
+            onClick={(e) => {
+              e.preventDefault();
+              logoutHandler();
+            }}
+          >
+            Logout
+          </Link>,
+          "7",
+          <FileOutlined />
+        ),
+      ];
+  
+      // console.log(items);
+  
+      // const breadcrumbItems = [
+      //   {
+      //     path: '/admin',
+      //     title: <HomeOutlined />,
+      //   },
+      //   {
+      //     path: '/admin/products/edit-product',
+      //     title: (
+      //       <>
+      //         <UserOutlined />
+      //         <span>Edit Product</span>
+      //       </>
+      //     ),
+      //   },
+      //   {
+      //     title: 'Product',
+      //   },
+      // ];
+  
+      // const breadcrumbItemRender = (route, params, items, paths) => {
+      //   items.map((item) => {
+      //     const last = items.indexOf(item) === items.length - 1;
+      //     return last ? <span>{item.title}</span> : <Link href={paths.join('/')}>{item.title}</Link>;
+      //   });
+      // };
+  
+      const pathNames = currentPath.split("/").filter((item) => item);
+      pathNames.shift();
+      if (pathNames.includes("[prodId]")) {
+        const { prodId } = router.query;
+        pathNames.splice(pathNames.length - 1, 1, prodId);
+      }
+      
+      let breadItems = [];
+      if (pathNames.length > 0) {
+          breadItems.push({title: <Link
+            href="/admin"
+            onClick={(e) => {
+              e.preventDefault();
+              checkAuthFetch("/admin");
+            }}
+          >
             <HomeOutlined />
-          </Breadcrumb.Item>
-        )}
-        {pathNames.map((name, index) => {
-          if (index !== 0) {
-            const routeTo = `/${pathNames.slice(0, index + 1).join("/")}`;
-            const isLast = index === pathNames.length - 1;
-            return isLast ? (
-              <Breadcrumb.Item>{name}</Breadcrumb.Item>
-            ) : (
-              <Breadcrumb.Item>
-                {/* {name === items[2].path ? items[2].icon : "" */
-                items.forEach((item) => {
-                  if (item.path !== undefined) {
-                    console.log(item.path);
-                    if (name === item.path) {
-                      return item.icon;
-                    }
-                  }
-                })
-                }
-                <span> {name}</span>
-              </Breadcrumb.Item>
-            );
-          }
-        })}
-      </Breadcrumb>
-    );
-
-    // const items = [
-    //   {
-    //     key: "1",
-    //     icon: <UserOutlined />,
-    //     label: (
-    //       <Link
-    //         href="/admin"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           checkAuthFetch("/admin");
-    //         }}
-    //       >
-    //         Dashboard
-    //       </Link>
-    //     ),
-    //     path: "/admin",
-    //   },
-    //   {
-    //     key: "2",
-    //     icon: <VideoCameraOutlined />,
-    //     label: (
-    //       <Link
-    //         href="/admin/test"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           checkAuthFetch("/admin/test");
-    //         }}
-    //       >
-    //         Test
-    //       </Link>
-    //     ),
-    //     path: "/admin/test",
-    //   },
-    //   {
-    //     key: "3",
-    //     icon: <UploadOutlined />,
-    //     label: (
-    //       <Link
-    //         href="/admin/products/edit-product"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           checkAuthFetch("/admin/products/edit-product");
-    //         }}
-    //       >
-    //         Edit Product
-    //       </Link>
-    //     ),
-    //     path: "/admin/products/edit-product",
-    //   },
-    //   {
-    //     key: "4",
-    //     icon: <UploadOutlined />,
-    //     label: (
-    //       <Link
-    //         href="/admin/products/new-product"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           checkAuthFetch("/admin/products/new-product");
-    //         }}
-    //       >
-    //         New Product
-    //       </Link>
-    //     ),
-    //     path: "/admin/products/new-product",
-    //   },
-    //   {
-    //     key: "5",
-    //     icon: <UploadOutlined />,
-    //     label: (
-    //       <Link
-    //         href="/auth/logout"
-    //         onClick={(e) => {
-    //           e.preventDefault();
-    //           logoutHandler();
-    //         }}
-    //       >
-    //         Logout
-    //       </Link>
-    //     ),
-    //     path: "/auth/logout",
-    //   },
-    // ];
-
-    // setSelectedKey();
-
-    let customSelectedKey = items.find(
-      (_item) => currentPath === _item.path
-    )?.key;
-
-    if (customSelectedKey === undefined) {
-      items.forEach((item) => {
-        if (item.children !== undefined) {
-          for (let i = 0; i < item.children.length; i++) {
-            if (currentPath === item.children[i].path) {
-              customSelectedKey = item.children[i].key;
-              // if (customSelectedKey === "3" || customSelectedKey === "4") {
-              //   console.log(customSelectedKey);
-              // } else {
-              //   console.log(customSelectedKey);
-              // }
+          </Link>});
+        pathNames.map((name, index) => {
+          const isLast = index === pathNames.length - 1;
+          let breadIcon;
+          let breadName;
+          let breadLink;
+          let isEditProduct = false;
+  
+          switch (name) {
+            case "products":
+              breadIcon = <UserOutlined />;
+              breadName = "Product Management";
               break;
+            case "edit-product":
+              isEditProduct = true;
+              breadName = "Edit Product";
+              breadLink = (
+                <Link
+                  href="/admin/products/edit-product"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    checkAuthFetch("/admin/products/edit-product");
+                  }}
+                >
+                  {breadName}
+                </Link>
+              );
+              break;
+            default:
+              breadName = name;
+              break;
+          }
+  
+          if (isLast) {
+            breadItems.push({title: breadName});
+          } else {
+            if (isEditProduct) {
+              breadItems.push({title: breadLink});
+            } else {
+              breadItems.push({title: (
+                <>
+                  {breadIcon}
+                  <span>{breadName}</span>
+                </>
+              )});
             }
           }
-        }
-      });
-    }
-
-    layout = (
-      <Layout
-        style={{
-          minHeight: "100vh",
-        }}
-      >
-        <Sider trigger={null} collapsible collapsed={collapsed}>
-          <div className={classes.demo_logo_vertical} />
-          <Menu
-            theme="dark"
-            mode="inline"
-            defaultSelectedKeys={["1"]}
-            selectedKeys={[customSelectedKey]}
-            openKeys={openKeys}
-            onOpenChange={onOpenChange}
-            onClick={menuOnClickHandler}
-            items={items}
-          />
-        </Sider>
-        <Layout>
-          <Header
-            style={{
-              padding: 0,
-              background: colorBgContainer,
-            }}
-          >
-            <Button
-              type="text"
-              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-              onClick={() => setCollapsed(!collapsed)}
-              style={{
-                fontSize: "16px",
-                width: 64,
-                height: 64,
-              }}
+        });
+      } else {
+        breadItems.push({title: <HomeOutlined />});
+      }
+  
+      const myBreadcrumb = (
+        <Breadcrumb
+          style={{
+            margin: "24px 16px 0px",
+          }}
+          separator=">"
+          items={breadItems}
+        />
+      );
+  
+      // const items = [
+      //   {
+      //     key: "1",
+      //     icon: <UserOutlined />,
+      //     label: (
+      //       <Link
+      //         href="/admin"
+      //         onClick={(e) => {
+      //           e.preventDefault();
+      //           checkAuthFetch("/admin");
+      //         }}
+      //       >
+      //         Dashboard
+      //       </Link>
+      //     ),
+      //     path: "/admin",
+      //   },
+      //   {
+      //     key: "2",
+      //     icon: <VideoCameraOutlined />,
+      //     label: (
+      //       <Link
+      //         href="/admin/test"
+      //         onClick={(e) => {
+      //           e.preventDefault();
+      //           checkAuthFetch("/admin/test");
+      //         }}
+      //       >
+      //         Test
+      //       </Link>
+      //     ),
+      //     path: "/admin/test",
+      //   },
+      //   {
+      //     key: "3",
+      //     icon: <UploadOutlined />,
+      //     label: (
+      //       <Link
+      //         href="/admin/products/edit-product"
+      //         onClick={(e) => {
+      //           e.preventDefault();
+      //           checkAuthFetch("/admin/products/edit-product");
+      //         }}
+      //       >
+      //         Edit Product
+      //       </Link>
+      //     ),
+      //     path: "/admin/products/edit-product",
+      //   },
+      //   {
+      //     key: "4",
+      //     icon: <UploadOutlined />,
+      //     label: (
+      //       <Link
+      //         href="/admin/products/new-product"
+      //         onClick={(e) => {
+      //           e.preventDefault();
+      //           checkAuthFetch("/admin/products/new-product");
+      //         }}
+      //       >
+      //         New Product
+      //       </Link>
+      //     ),
+      //     path: "/admin/products/new-product",
+      //   },
+      //   {
+      //     key: "5",
+      //     icon: <UploadOutlined />,
+      //     label: (
+      //       <Link
+      //         href="/auth/logout"
+      //         onClick={(e) => {
+      //           e.preventDefault();
+      //           logoutHandler();
+      //         }}
+      //       >
+      //         Logout
+      //       </Link>
+      //     ),
+      //     path: "/auth/logout",
+      //   },
+      // ];
+  
+      // setSelectedKey();
+  
+      let customSelectedKey = items.find(
+        (_item) => currentPath === _item.path
+      )?.key;
+  
+      if (customSelectedKey === undefined) {
+        items.forEach((item) => {
+          if (item.children !== undefined) {
+            for (let i = 0; i < item.children.length; i++) {
+              if (currentPath === item.children[i].path) {
+                customSelectedKey = item.children[i].key;
+                // if (customSelectedKey === "3" || customSelectedKey === "4") {
+                //   console.log(customSelectedKey);
+                // } else {
+                //   console.log(customSelectedKey);
+                // }
+                break;
+              }
+            }
+          }
+        });
+      }
+  
+      layout = (
+        <Layout
+          style={{
+            minHeight: "100vh",
+          }}
+        >
+          <Sider trigger={null} collapsible collapsed={collapsed}>
+            <div className={classes.demo_logo_vertical} />
+            <Menu
+              theme="dark"
+              mode="inline"
+              defaultSelectedKeys={["1"]}
+              selectedKeys={[customSelectedKey]}
+              openKeys={openKeys}
+              onOpenChange={onOpenChange}
+              onClick={menuOnClickHandler}
+              items={items}
             />
-          </Header>
-          {myBreadcrumb}
-          <Content
-            style={{
-              margin: "24px 16px",
-              padding: 24,
-              minHeight: 280,
-              background: colorBgContainer,
-              borderRadius: borderRadiusLG,
-            }}
-          >
-            {props.children}
-          </Content>
-          <Footer
-            style={{
-              textAlign: "center",
-            }}
-          >
-            Ant Design ©2023 Created by Ant UED
-          </Footer>
+          </Sider>
+          <Layout>
+            <Header
+              style={{
+                padding: 0,
+                background: colorBgContainer,
+              }}
+            >
+              <Button
+                type="text"
+                icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{
+                  fontSize: "16px",
+                  width: 64,
+                  height: 64,
+                }}
+              />
+            </Header>
+            {myBreadcrumb}
+            <Content
+              style={{
+                margin: "24px 16px",
+                padding: 24,
+                minHeight: 280,
+                background: colorBgContainer,
+                borderRadius: borderRadiusLG,
+              }}
+            >
+              {props.children}
+            </Content>
+            <Footer
+              style={{
+                textAlign: "center",
+              }}
+            >
+              Ant Design ©2023 Created by Ant UED
+            </Footer>
+          </Layout>
         </Layout>
-      </Layout>
-    );
-  } else {
-    layout = (
-      <div>
-        <MainNavigation />
-        <main className={classes.main}>{props.children}</main>
-      </div>
-    );
-  }
+      );
+    // } else {
+    //   layout = (
+    //     <div>{props.children}</div>
+    //   );
+    // }
+    
+  // } else {
+  //   layout = (
+  //     <div>{props.children}</div>
+  //   );
+  // }
 
   return layout;
 }

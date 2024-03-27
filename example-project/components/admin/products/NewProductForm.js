@@ -1,8 +1,7 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Select, Space, Switch, Modal, Upload, Button, Form, Input, InputNumber } from "antd";
 import { CheckOutlined, CloseOutlined, PlusOutlined } from "@ant-design/icons";
 import Card from "../ui/Card";
-import classes from "./NewProductForm.module.css";
 const { TextArea } = Input;
 const getBase64 = (file) =>
   new Promise((resolve, reject) => {
@@ -13,8 +12,6 @@ const getBase64 = (file) =>
   });
 
 function NewProductForm(props) {
-  // const [enteredName, setEnteredName] = useState("");
-  // const [enteredDescription, setEnteredDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [isActv, setIsActv] = useState(false);
@@ -22,8 +19,6 @@ function NewProductForm(props) {
   const [previewImage, setPreviewImage] = useState('');
   const [previewTitle, setPreviewTitle] = useState('');
   const [fileList, setFileList] = useState([]);
-
-  // const priceInputRef = useRef();
 
   const handleCancel = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
@@ -64,29 +59,22 @@ function NewProductForm(props) {
   );
 
   function formSubmitHandler(values) {
-    // event.preventDefault();
-    // const enteredPrice = priceInputRef.current.value;
-
     const enteredImage = selectedFile;
     const enteredCategory = selectedCategory;
     const is_actv = isActv;
 
     const productData = {
       name: values.name,
-      image: enteredImage,
       price: values.price,
       descr: values.description,
       is_actv,
       categoryId: enteredCategory,
+      isProduct: true,
+      image: enteredImage
     };
 
     props.onAddProduct(productData);
   }
-
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0];
-  //   setSelectedFile(file); // Seçilen dosyayı saklamak için bir state kullanabilirsiniz
-  // };
 
   const categorySelChangeHandler = (value) => {
     setSelectedCategory(value);
@@ -101,11 +89,6 @@ function NewProductForm(props) {
     label: category.name,
   }));
 
-
-  const onFormValueChange = () => {
-    console.log("onFormValueChange: ");
-  };
-
   return (
     <Card size="small">
       <Form
@@ -119,7 +102,6 @@ function NewProductForm(props) {
         initialValues={{
           size: 'default',
         }}
-        onValuesChange={onFormValueChange}
         size='default'
         style={{
           maxWidth: 640,
@@ -215,73 +197,6 @@ function NewProductForm(props) {
       </Form>
     </Card>
   );
-
-  // return (
-  //   <Card size="small">
-  //     <form className={classes.form} onSubmit={submitHandler}>
-  //       <div className={classes.control}>
-  //         <label htmlFor="name">Product Name</label>
-  //         <input type="text" required id="name" ref={nameInputRef} />
-  //       </div>
-  //       <div className={classes.control}>
-  //         <label htmlFor="image">Product Image</label>
-  //         <input
-  //           type="file"
-  //           required
-  //           id="image"
-  //           name="Imgfile"
-  //           onChange={handleFileChange}
-  //         />
-  //       </div>
-  //       <div className={classes.control}>
-  //         <label htmlFor="price">Product Price</label>
-  //         <input type="text" required id="price" ref={priceInputRef} />
-  //       </div>
-  //       <div className={classes.control}>
-  //         <label htmlFor="categorySelect">Product Category</label>
-  //         <Space
-  //           direction="vertical"
-  //           style={{
-  //             width: "100%",
-  //           }}
-  //         >
-  //           <Select
-  //             id="categorySelect"
-  //             placeholder="Please select"
-  //             style={{
-  //               width: "100%",
-  //             }}
-  //             onChange={categorySelChangeHandler}
-  //             options={categoryOptions}
-  //           />
-  //         </Space>
-  //       </div>
-  //       <div className={classes.control}>
-  //         <label htmlFor="description">Description</label>
-  //         <textarea
-  //           id="description"
-  //           required
-  //           rows="4"
-  //           ref={descriptionInputRef}
-  //         ></textarea>
-  //       </div>
-  //       <div className={classes.control}>
-  //         <label htmlFor="is_actv">Is Product Active?</label>
-  //         <Space direction="vertical">
-  //           <Switch
-  //             checked={isActv}
-  //             checkedChildren={<CheckOutlined />}
-  //             unCheckedChildren={<CloseOutlined />}
-  //             onChange={isActvSwitchChangeHandler}
-  //           />
-  //         </Space>
-  //       </div>
-  //       <div className={classes.actions}>
-  //         <button>Add Product</button>
-  //       </div>
-  //     </form>
-  //   </Card>
-  // );
 }
 
 export default NewProductForm;

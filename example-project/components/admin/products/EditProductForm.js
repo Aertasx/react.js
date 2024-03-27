@@ -26,17 +26,17 @@ const getBase64 = (file) =>
   });
 
 function EditProductForm(props) {
-  const [enteredName, setEnteredName] = useState("");
-  const [enteredDescription, setEnteredDescription] = useState("");
+  const [enteredName, setEnteredName] = useState(props.productData.name);
+  const [enteredDescription, setEnteredDescription] = useState(props.productData.descr);
   const [selectedFile, setSelectedFile] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [isActv, setIsActv] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(props.productData.prodCatId !== null ? props.productData.prodCatId : null);
+  const [isActv, setIsActv] = useState(props.productData.isActv);
+  const [enteredPrice, setEnteredPrice] = useState(props.productData.price);
+
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
   const [fileList, setFileList] = useState([]);
-
-  const priceInputRef = useRef();
 
   const handleCancel = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
@@ -80,39 +80,32 @@ function EditProductForm(props) {
 
   function formSubmitHandler() {
     // event.preventDefault();
-    const enteredPrice = priceInputRef.current.value;
+    // const enteredPrice = enteredPrice;
     const enteredImage = selectedFile;
     const enteredCategory = selectedCategory;
     const is_actv = isActv;
 
     const productData = {
       name: enteredName,
-      image: enteredImage,
       price: enteredPrice,
       descr: enteredDescription,
       is_actv,
       categoryId: enteredCategory,
+      isProduct: true,
+      image: enteredImage
     };
 
-    props.onAddProduct(productData);
-  }
+    props.onEditProduct(productData);
+  };
+
+  // function removeProductConfirmHandler () {
+  //   props.onRemoveProduct(props.productData.id);
+  // };
 
   // const handleFileChange = (e) => {
   //   const file = e.target.files[0];
   //   setSelectedFile(file); // Seçilen dosyayı saklamak için bir state kullanabilirsiniz
   // };
-
-  const categorySelChangeHandler = (value) => {
-    setSelectedCategory(value);
-  };
-
-  const isActvSwitchChangeHandler = (isActv) => {
-    setIsActv(isActv);
-  };
-
-  const onFormValueChange = () => {
-    console.log("onFormValueChange: ");
-  };
 
   const categoryOptions = props.categories.map((category) => ({
     value: category.id,
@@ -151,7 +144,6 @@ function EditProductForm(props) {
           initialValues={{
             size: "default",
           }}
-          onValuesChange={onFormValueChange}
           size="default"
           style={{
             maxWidth: 640,
@@ -166,7 +158,7 @@ function EditProductForm(props) {
                 width: "100%",
               }}
             >
-              <Input defaultValue={props.productData.name} />
+              <Input defaultValue={enteredName} onChange={(e) => setEnteredName(e.target.value)} />
             </Space>
           </Form.Item>
           <Form.Item name="description" label="Description">
@@ -176,7 +168,7 @@ function EditProductForm(props) {
                 width: "100%",
               }}
             >
-              <TextArea rows={4} defaultValue={props.productData.descr} />
+              <TextArea rows={4} defaultValue={enteredDescription} onChange={(e) => setEnteredDescription(e.target.value)} />
             </Space>
           </Form.Item>
           <Form.Item label="Product Category">
@@ -192,7 +184,8 @@ function EditProductForm(props) {
                 style={{
                   width: "100%",
                 }}
-                onChange={categorySelChangeHandler}
+                onChange={(value) => setSelectedCategory(value)}
+                defaultValue={selectedCategory}
                 options={categoryOptions}
               />
             </Space>
@@ -204,7 +197,7 @@ function EditProductForm(props) {
                 width: "50%",
               }}
             >
-              <InputNumber defaultValue={props.productData.price} />
+              <InputNumber defaultValue={enteredPrice} onChange={(value) => setEnteredPrice(value)} />
             </Space>
           </Form.Item>
           <Form.Item label="Upload">
@@ -240,17 +233,22 @@ function EditProductForm(props) {
               }}
             >
               <Switch
-                checked={props.productData.isActv == "1" ? true : false}
+                defaultChecked={isActv == "1" ? true : false}
                 checkedChildren={<CheckOutlined />}
                 unCheckedChildren={<CloseOutlined />}
-                onChange={isActvSwitchChangeHandler}
+                onChange={(isActv) => setIsActv(isActv)}
               />
             </Space>
           </Form.Item>
-          <Form.Item label="" wrapperCol={{ span: 1, offset: 5 }}>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
+          <Form.Item label="" wrapperCol={{ span: 18, offset: 5 }}>
+            <Space>
+              <Button type="primary" htmlType="submit">
+                Save
+              </Button>
+              <Button type="primary" danger htmlType="button" onClick={() => props.onRemoveProduct(props.productData.id)}>
+                Delete Product
+              </Button>
+            </Space>
           </Form.Item>
         </Form>
       </Col>

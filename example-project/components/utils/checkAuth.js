@@ -2,8 +2,9 @@
 import store from "../../store";
 import { authActions } from '../../store/auth';
 import axios from "axios";
+// import { BACK_BASE_URL } from "../../config/urlConfig";
 
-const checkAuth = () => {
+const checkAuth = (back_base_url) => {
   const [isAuthCheckedForInit, setIsAuthCheckedForInit] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
 
@@ -15,7 +16,7 @@ const checkAuth = () => {
         };
   
         const response = await axios.get(
-          "http://localhost:3500/api/account/check-auth",
+          back_base_url + "api/account/check-auth",
           axiosConfig
         );
         console.log("checkAuth çalıştı 1");

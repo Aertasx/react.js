@@ -159,7 +159,7 @@ const ListProduct = (props) => {
       title: "Category",
       dataIndex: "category",
       ...getColumnSearchProps("category"),
-      sorter: (a, b) => a.category - b.category,
+      sorter: (a, b) => a.category.localeCompare(b.category),
     },
     {
       title: "Is Active?",
@@ -174,7 +174,7 @@ const ListProduct = (props) => {
           value: "Deactive",
         },
       ],
-      onFilter: (value, record) => record.is_actv.indexOf(value) === 0,
+      onFilter: (value, record) => record.is_actv_filter.indexOf(value) === 0,
     },
     {
       title: "Action",
@@ -188,16 +188,17 @@ const ListProduct = (props) => {
               <Button type="primary" icon={<EditOutlined />} size="large" />
             </Tooltip>
           </Link>
-          <Link href={"./remove-product/" + record.key} passHref>
-            <Tooltip title="Remove">
+          {/* <Link href={"./remove-product/" + record.key} passHref>
+          </Link> */}
+          <Tooltip title="Remove">
               <Button
                 danger
                 type="primary"
                 icon={<DeleteOutlined />}
                 size="large"
+                onClick={() => {props.onRemoveProduct(record.key);}}
               />
             </Tooltip>
-          </Link>
         </Flex>
       ),
     },
@@ -218,7 +219,7 @@ const ListProduct = (props) => {
     key: product.id,
     name: product.name,
     price: product.price,
-    category: "Android",
+    category: product.categories[0] && product.categories[0].name ? product.categories[0].name : "Kategorisiz",
     is_actv:
       product.is_actv == 1 ? (
         <Tag bordered={false} color="success" value="Active">
@@ -229,6 +230,7 @@ const ListProduct = (props) => {
           Deactive
         </Tag>
       ),
+    is_actv_filter: product.is_actv == 1 ? "Active" : "Deactive",
   }));
 
   // const productData = data;

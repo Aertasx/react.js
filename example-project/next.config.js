@@ -5,6 +5,7 @@ const nextConfig = {
     'rc-util',
     'rc-tree',
     'rc-table',
+    'antd',
     '@ant-design',
     'kitchen-flow-editor',
     '@ant-design/pro-editor',
